@@ -10,18 +10,32 @@ install.packages("ggplot2","tidyverse")
 install.packages("lubridate")
 install.packages("scales")
 ```
-
 ```{r}
+# Create own colour palette
+Tanz <- c("#FFFF00", "#00FF00", "#0000FF", "#000000", "#33CCCC")
 
+# Create a vector with the correct order of months
+month_order <- c("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec")
+
+# Use the factor function to set the levels of the Month variable in the desired order
+Nesting_data$Month <- factor(Nesting_data$Month, levels = month_order)
+
+#Will put your subtitle in the middle of the graph
+my_theme <- theme(plot.subtitle = element_text(hjust = 0.5))
+
+# Plot the data with ggplot
 ggplot(data = Nesting_data, mapping = aes(x = Month, y = Nest, group = Location, colour = Location)) +
-geom_line() +
-  labs( title = "Seasonal distribution of Green Turtle Nesting sites around Tanzania",
-        subtitle = "Redesigned by Olivia and Courtney",
-        y = "Number of nests",
-        x = "Months") +
-  theme(plot.subtitle = element_text(size = 10,
-                                     hjust = 0)) +
+  geom_line() +
+  labs(title = "Seasonal distribution of Green Turtle Nesting sites around Tanzania",
+       subtitle = "Redesigned by Olivia and Courtney",
+       y = "Number of nests",
+       x = "Months") +
   theme_grey() +
-  scale_color_brewer(palette = "Spectral")
+  scale_color_brewer(palette = "Spectral") +
+  scale_x_discrete(limits = month_order) +
+  my_theme +
+  scale_color_manual(values = Tanz)
+
+
 
 ```
