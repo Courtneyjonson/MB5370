@@ -1,0 +1,27 @@
+---
+title: "Nesting data
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+```{r}
+
+install.packages("ggplot2","tidyverse")
+install.packages("lubridate")
+install.packages("scales")
+```
+
+```{r}
+
+ggplot(data = Nesting_data, mapping = aes(x = Month, y = Nest, group = Location, colour = Location)) +
+geom_line() +
+  labs( title = "Seasonal distribution of Green Turtle Nesting sites around Tanzania",
+        subtitle = "Redesigned by Olivia and Courtney",
+        y = "Number of nests",
+        x = "Months") +
+  theme(plot.subtitle = element_text(size = 10,
+                                     hjust = 0)) +
+  theme_grey() +
+  scale_color_brewer(palette = "Spectral")
+
+```
