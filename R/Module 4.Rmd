@@ -1,0 +1,691 @@
+---
+title: "Module 4"
+author: "Courtney Jonson"
+date: "2023-05-02"
+output: html_document
+---
+```{r}
+#2.4 Install Tidyverse
+
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+```{r}
+#2.5 Obtain the data
+
+mpg
+
+##The variables in the mpg data frame include: disp, which is the engine size of the cars in litres, hwy, which is the cars fuel efficiency in miles per gallon (mpg). A car with a low fuel efficiency consumes more fuel than a car with a high fuel efficiency when they travel the same distance.
+```
+
+```{r}
+
+#2.6 Create your first ggplot
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+
+#1. ggplot() creates a coordinate system that you can add layers to. 
+#2. Add data to this function, <ggplot(data = mpg)>, this will create an empty graph where you need to add your points.
+#3. The next function geom_point(), will add a layer of points to your plot, which creates a scatterplot. (ggplot2 comes with many different geom functions that each add a different type of layer to a plot). 
+#4. The mapping argument (geo_point()) is always paired with aes(), you will need to specify the x and y variables in the data.
+
+##ggplot(data = <DATA>) + 
+  ##<GEOM_FUNCTION> (mapping = aes(<MAPPINGS>))
+```
+
+```{r}
+#2.7.1 Aesthetic mappings
+#Aesthetic can include size, colour and shape.
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, colour = class))
+#This will change the different classes in this dataset to a different colour, we can also change the size. 
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+#This would not be a good feature to help with reading this graph as it is hard to tell the classes apart, it also is giving off that some classes are "bigger" or have "more value" then the other which this is not a correct statement for these variables. How would some else read the plot? make sure you are giving off the correct information
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+#This looks appealing but still may be hard to read especially people with vision problems, as some points are very transparent.
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+#Changing the shape of the classes
+
+##Manually changing the colour.
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "green") 
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, colour = displ < 5))
+
+```
+
+```{r}
+#2.8 Troubleshooting
+
+## line given: ggplot(data = mpg) 
+#+ geom_point(mapping = aes(x = displ, y = hwy))
+
+#error is that the + is on the wrong line
+
+ggplot(data = mpg) +
+ geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+#2.9 Facet and panel plot
+#only use facet_wrap() for discrete variables.
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+##This second plots is using two variables an spliting them up with a ~, instead using _wrap you need to use _grid. 
+
+#if you do not want to facet in the rows or column dimension
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+facet_grid(. ~ cyl)
+
+#Nrow and ncol - these control the number of rows and coloumns in the code.
+
+```
+
+```{r}
+#2.10 fitting simple lines
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy)) 
+
+#need to join the two
+
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy)
+              
+#seperate by the drives
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+
+  ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, colour = drv)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv, colour = drv), show.legend = FALSE)
+  
+##Reduce duplication - the above code has too many of the same lines. 
+  # Need to reduce duplication as it reduces the risk of error. 
+  ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = drv)) + 
+  geom_smooth(mapping = aes(colour = drv))
+  
+  ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+  
+```
+
+``` {r}
+##Exercises:
+
+#What geom would you use to draw a line chart? geom_line
+  #A boxplot? geom_boxplot()
+  #A histogram? geom_histogram()
+  #An area chart? geom_area()
+
+#Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.
+  
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_line(mapping = aes(colour = drv))
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_boxplot(mapping = aes(colour = drv))
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_histogram() # did not work. 
+
+ggplot(data = mpg) +
+  geom_area(mapping = aes(x = displ, y = hwy))
+
+#Will these two graphs look different? Why/why not?. 
+##Yes they will look the same as they are still requesting the same outputs. 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+
+```
+
+
+```{r}
+#2.11 Transformations and stats
+
+##New Data set 
+diamonds
+
+#Line of code shows the diamond cuts in a bar graph. 
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+
+ggplot(data = diamonds) + 
+  stat_count(mapping = aes(x = cut))
+##We can use geom and stat interchangeably. This stat function enables us to input our own stats rather then replying on ggplot to make their own. 
+
+#2.11.2 Overiding defaults in ggplot
+
+#Tribbles
+demo <- tribble(
+  ~cut,         ~freq,
+  "Fair",       1610,
+  "Good",       4906,
+  "Very Good",  12082,
+  "Premium",    13791,
+  "Ideal",      21551)
+ demo
+
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = cut, y = freq), stat = "identity")
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = stat(prop), group = 1))
+
+#2.11.3 plotting statistcal details
+
+ggplot(data = diamonds) + 
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.min = min,
+    fun.max = max,
+    fun = median
+  )
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = after_stat(prop)))
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = color, y = after_stat(prop)))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, colour = cut))
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+
+
+#To alter transparency (alpha)
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + 
+  geom_bar(alpha = 1/5, position = "identity")
+
+#To color the bar outlines with no fill color
+ggplot(data = diamonds, mapping = aes(x = cut, colour = clarity)) + 
+  geom_bar(fill = NA, position = "identity"))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+
+
+```
+
+```{r}
+#2.13 The layered grammar of graphics
+
+#ggplot(data = <DATA>) + 
+ # <GEOM_FUNCTION>(
+    # mapping = aes(<MAPPINGS>),
+    # stat = <STAT>, 
+     #position = <POSITION>
+ # ) +
+  #<FACET_FUNCTION>#
+
+```
+
+workshop 2 
+
+```{r}
+#3.1 labels
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se.e = FALSE) +
+  labs(title = "Fuel Efficiency Generally Decreases with Engine Size")
+  
+  ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Fuel efficiency generally decreases with engine size",
+    subtitle = "Two seaters (sports cars) are an exception because of their light weight",
+    caption = "Data from fueleconomy.gov"
+  )
+  
+  #Replacing the axis labels by using labs()
+  
+  ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    x = "Engine displacement (L)",
+    y = "Highway fuel economy (mpg)",
+    colour = "Car type"
+  )
+```
+
+```{r}
+
+#3.2 Annotations 
+
+best_in_class <- mpg %>%
+  group_by(class) %>%
+  filter(row_number(desc(hwy)) == 1)
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_text(aes(label = model), data = best_in_class)
+
+```
+
+```{r}
+#3.3 Scales 
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class))
+#automatically defaults scale
+
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  scale_x_continuous('displ',10) +
+  scale_y_continuous('hwy', 60) +
+  scale_colour_discrete(0,10)
+
+```
+
+```{r}
+#Axis ticks
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_y_continuous(breaks = seq(15, 40, by = 5))
+
+seq(15,40, by =5)
+#[1] 15 20 25 30 35 40
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_x_continuous(labels = NULL) +
+  scale_y_continuous(labels = NULL)
+# set to NULL to suppress the labels altogether.
+```
+
+```{r}
+#3.5 Legends and colour schemes
+
+base <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class))
+
+base + theme(legend.position = "left")
+base + theme(legend.position = "top")
+base + theme(legend.position = "bottom")
+base + theme(legend.position = "right")
+```
+
+```{r}
+#3.6 Replacing the scale
+#There are two types of scales you’re mostly likely to want to switch out: continuous position scales and colour scales.
+
+ggplot(diamonds, aes(carat, price)) +
+  geom_bin2d() + 
+  scale_x_log10() + 
+  scale_y_log10()
+#to see the precise relationship between carat and price we log transform them using a ggplot2 function for scale precisely for this purpose.
+
+#Changes in colour visualisations are one of the most important customisations to do.
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv))
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv)) +
+  scale_colour_brewer(palette = "Set1")
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv, shape = drv)) +
+  scale_colour_brewer(palette = "Set1")
+
+#To set predefined colours, scale_colour_manual()
+
+presidential %>%
+  mutate(id = 33 + row_number()) %>%
+  ggplot(aes(start, id, colour = party)) +
+    geom_point() +
+    geom_segment(aes(xend = end, yend = id)) +
+    scale_colour_manual(values = c(Republican = "pink", Democratic = "blue"))
+#mutate() creates new columns that are functions of existing variables. It can also modify (if the name is the same as an existing column) and delete columns (by setting their value to NULL).
+
+#Another example, scale_colour_viridis()
+
+install.packages('viridis')
+install.packages('hexbin')
+library(viridis)
+library(hexbin)
+
+df <- tibble(
+  x = rnorm(10000),
+  y = rnorm(10000)
+)
+ggplot(df, aes(x, y)) +
+  geom_hex() + # a new geom!
+  coord_fixed()
+
+ggplot(df, aes(x, y)) +
+  geom_hex() +
+  viridis::scale_fill_viridis() +
+  coord_fixed()
+```
+
+```{r}
+#3.7 Themes 
+#Customising your entire theme, ggplot has 8 themes by default.
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_bw()
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_light()
+#grid
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_classic()
+#no grid
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_dark()
+#dark grid
+
+#an example of setting your own theme.
+ theme (panel.border = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.position="bottom",
+        legend.title=element_blank(),
+        legend.text=element_text(size=8),
+        panel.grid.major = element_blank(),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        axis.text.y=element_text(colour="black"),
+        axis.text.x=element_text(colour="black"),
+        text=element_text(family="Arial")) 
+ 
+
+```
+
+Workshop 4: 
+```{r}
+##5.3 What is tibble? 
+#install tibble: They are slightly adjusted dataframes which were designed to keep up with recent advances in R. Some things that were useful in R a decade ago, now hinder users rather than help them, so tibbles are a kind of future proof data frame. 
+
+library(tidyverse)
+
+str(iris)
+as_tibble(iris)
+
+tibble(
+  x = 1:5, 
+  y = 1, 
+  z = x ^ 2 + y)
+
+#use the old data.frame functions to create these variables - there is more steps in this way.
+x = c(1,2,3,4,5)
+y = c(1)
+z = c(x ^ 2 + y)
+
+tb <- tibble(
+  `:)` = "smile", 
+  ` ` = "space",
+  `2000` = "number"
+)
+tb
+
+tribble(
+  ~x, ~y, ~z,
+  #--|--|----
+  "a", 2, 3.6,
+  "b", 1, 8.5
+)
+
+tibble(
+  a = lubridate::now() + runif(1e3) * 86400,
+  b = lubridate::today() + runif(1e3) * 30,
+  c = 1:1e3,
+  d = runif(1e3),
+  e = sample(letters, 1e3, replace = TRUE)
+)
+
+#You can use print() to designate the number of rows (n) and display width. (width = Inf #displays every column). Here we can see this by looking at the giant flights dataset from the nycflights package. Note how many rows there are, but also now you can see all of the columns.
+
+install.packages("nycflights13")
+library(nycflights13)
+nycflights13::flights %>% 
+  print(n = 10, width = Inf)
+
+#You’ve a range of other things you can do to interrogate your data. Here are a few options you can set globally. 
+#if more than n rows, print only m rows. 
+#Use options(tibble.print_min = Inf) to always show all rows.
+#Use options(tibble.width = Inf) to always print all columns, regardless of the width of the screen.
+#Use R’s built-in viewer with View()
+#You can see a complete list of options by looking at the package help with package?tibble.
+
+options(tibble.width = Inf)
+df <- tibble(
+  x = runif(5),
+  y = rnorm(5)
+)
+df$x
+df[["x"]]
+df[[1]]
+df[[2,2]]
+
+#Later on we will start to use pipes (%>%), which is a new way to do things to variables in R.
+df %>% .$x
+df %>% .[["x"]]
+
+#Another benefit to tibbles is that they won’t do partial matching, which means if the variable you call out doesn’t match exactly what’s in the dataframe, tibbles will generate a warning.
+df <- tibble(
+    xxx = runif(5),
+    y = rnorm(5)
+)
+df$xx 
+#One of them is that they don’t always work with older functions in R. If you run into this problem, use as.data.frame() to turn a tibble back to a standard R dataframe (data.frame). 
+#Some times the reason it doesn't work because of the older functions, we don't use [] 
+
+df <- data.frame(abc = 1, xyz = "a")
+df
+df$x #call by name
+df[, "xyz"] #call by exact position
+```
+
+```{r}
+#5.4 How can i import data? 
+
+read_csv("a,b,c
+1,2,3
+4,5,6")
+
+#if you have metadata at the top of your file, you might want to skip these lines using skip = n where n is the number of lines you want to skip over. 
+
+read_csv("The first line of metadata
+  The second line of metadata
+  x,y,z
+  1,2,3", skip = 2)
+
+read_csv("# A comment I want to skip
+  x,y,z
+  1,2,3", comment = "#")
+#This function --> use comment = '#' will drop all lines starting with a “#” or whatever character you designate.
+
+#read_csv() reads comma delimited files, read_csv2() reads semicolon separated files (common in countries where , is used as the decimal place), read_tsv() reads tab delimited files, and read_delim() reads in files with any delimiter.
+
+#read_fwf() reads fixed width files. You can specify fields either by their widths with fwf_widths() or their position with fwf_positions(). read_table() reads a common variation of fixed width files where columns are separated by white space.
+
+#Another reason to adjust the read_csv() default is if your data does not contain column names. In this case, use col_names = FALSE to tell read_csv() not to treat the first row as headings but to instead label them sequentially from X1 to Xn. 
+
+read_csv("1,2,3\n4,5,6", col_names = FALSE)
+#"\n" is simply a shortcut for adding a new line. This is a common ‘break’ in programming. 
+
+#you can create column names by:
+read_csv("1,2,3\n4,5,6", col_names = c("x", "y", "z"))
+
+##Creating no data values
+
+#You can also set the no data values. This is important because if you assume an empty cell is a 0, you could make a grave error in your analysis. Better to tell R that this is ‘no data’ so you can easily remove it later on.
+#Another option that commonly needs tweaking is na: this specifies the value (or values) that are used to represent missing values in your file:
+
+read_csv("a,b,c\n1,2,.", na = ".")
+
+```
+
+```{r}
+#5.5 Tidy data.
+
+# How we make our dataset a tidy dataset is by following three interrelated rules. 
+   ##Each variable must have its own column.
+   ##Each observation must have its own row.
+   ##Each value must have its own cell.
+
+#These three rules are interrelated because it’s impossible to only satisfy two of the three. That interrelationship leads to an even simpler set of practical instructions:
+   ##Put each dataset in a tibble.
+   ##Put each variable in a column.
+
+#Compute rate per 10,000
+table1 %>% 
+  mutate(rate = cases / population * 10000)
+
+#Compute cases per year 
+table1 %>% 
+  count(year, wt = cases)
+
+#changes over time- visual 
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+
+#5.5.2 Spreading and gathering data tables 
+
+#Once you understand the data you’re looking at, the second step is to resolve one of the two common problems with untidy data. These are:
+   ##One variable is spread across multiple columns
+   ##One observation is scattered across multiple rows
+
+table4a %>% 
+  pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "cases")
+
+#pivot_longer() makes datasets “longer” by increasing the number of rows and decreasing the number of columns.
+
+table4b %>% 
+  pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "population")
+
+tidy4a <- table4a %>% 
+  pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "cases")
+tidy4b <- table4b %>% 
+  pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "population")
+left_join(tidy4a, tidy4b)
+
+#join the two new tables. 
+
+#pivot_wider() is the opposite of pivot_longer().
+
+ #Example
+ table2 #To make this tidy we only need two parameters:the column to take variables from: type and The column to take values from: count
+
+ #pivot_wider() to make the table shorter and wider by creating new, separate columns for cases and population and populating them with their associated values.
+ 
+ table2 %>%
+   pivot_wider(names_from = type, values_from = count)
+
+#5.5.3 Seperating and uniting data tables
+ 
+#Example
+ table3 #In table3, we see one column (rate) that contains two variables (cases and population).
+ #we need to split the rate column up into two variables. separate() will take the name of the column to split and the names of the columns we want it split into.
+ 
+ table3 %>% 
+   separate(rate, into =c("cases","population"))
+#now have two variables in the table rather then 1 all together. 
+ 
+ table3 %>% 
+  separate(rate, into = c("cases", "population"), sep = "/")
+ 
+ table3 %>% 
+  separate(rate, into = c("cases", "population"), convert = TRUE)
+ 
+ #You can use this arrangement to separate the last two digits of each year. This makes this data less tidy, but is useful in other cases, as you’ll see in a little bit.
+
+ table3 %>% 
+  separate(year, into = c("century", "year"), sep = 2)
+ 
+ table5 %>% 
+  unite(new, century, year, sep = "")
+```
+
+```{r}
+#5.5.4 Handling missing values 
+
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return)
+
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(
+    cols = c(`2015`, `2016`), 
+    names_to = "year", 
+    values_to = "return", 
+    values_drop_na = TRUE
+  )
+
+stocks
+stocks %>% 
+  complete(year, qtr)
+
+treatment <- tribble(
+  ~ person,           ~ treatment, ~response,
+  "Derrick Whitmore", 1,           7,
+  NA,                 2,           10,
+  NA,                 3,           9,
+  "Katherine Burke",  1,           4
+)
+treatment
+
+treatment %>% 
+  fill(person)
+```
