@@ -451,6 +451,11 @@ Workshop 4:
 
 library(tidyverse)
 
+vignette("tibble")
+#It never uses row.names(). The whole point of tidy data is to store variables in a consistent way. So it never stores a variable as special attribute.
+
+#There are three key differences between tibbles and data frames: printing, subsetting, and recycling rules.
+
 str(iris)
 as_tibble(iris)
 
@@ -475,7 +480,8 @@ tribble(
   ~x, ~y, ~z,
   #--|--|----
   "a", 2, 3.6,
-  "b", 1, 8.5
+  "b", 1, 8.5,
+  "c", 3, 7.2
 )
 
 tibble(
@@ -514,7 +520,7 @@ df[[2,2]]
 df %>% .$x
 df %>% .[["x"]]
 
-#Another benefit to tibbles is that they won’t do partial matching, which means if the variable you call out doesn’t match exactly what’s in the dataframe, tibbles will generate a warning.
+#Another benefit to tibbles is that they won’t do partial matching, which means if the variable you call out doesn’t match exactly what’s in the data frame, tibbles will generate a warning.
 df <- tibble(
     xxx = runif(5),
     y = rnorm(5)
@@ -688,4 +694,221 @@ treatment
 
 treatment %>% 
   fill(person)
+```
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+
+airlines
+
+airports
+
+planes
+
+weather
+
+#A primary key uniquely identifies an observation in its own table. For example, planes$tailnum is a primary key because it uniquely identifies each plane in the planes table.
+#A foreign key uniquely identifies an observation in another table. For example, flights$tailnum is a foreign key because it appears in the flights table where it matches each flight to a unique plane.
+
+planes %>% 
+  count(tailnum) %>% 
+  filter(n > 1)
+
+weather %>% 
+  count(year, month, day, hour, origin) %>% 
+  filter(n > 1)
+
+flights %>% 
+  count(year, month, day, flight) %>% 
+  filter(n > 1)
+
+flights %>% 
+  count(year, month, day, tailnum) %>% 
+  filter(n > 1)
+
+#If a table lacks a primary key, it’s sometimes useful to add one with mutate() and row_number().
+
+flights2 <- flights %>% 
+  select(year:day, hour, origin, dest, tailnum, carrier)
+flights2
+
+flights2 %>%
+  select(-origin, -dest) %>% 
+  left_join(airlines, by = "carrier")
+#we have asked it to add the full arline name to the flights2 data by combining the airlines and flights2 data frames with left_join()
+flights2 %>%
+  select(-origin, -dest) %>% 
+  mutate(name = airlines$name[match(carrier, airlines$carrier)])
+#same result different name. 
+
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     4, "y3"
+)
+#The most important property of an inner join is that unmatched rows are not included in the result.
+
+x %>% 
+  inner_join(y, by = "key")
+
+#left_join() keeps all observations in x (we’ve seen this in our first example) (DEFAULT)
+#right_join() keeps all observations in y
+#full_join() keeps all observations in x and y
+```
+
+#Workshop 5
+
+```{r}
+#Install packages for Spatial maps
+
+install.packages("sf") 
+install.packages("terra")
+install.packages("tmap")
+
+library(tidyverse)
+library(sf) 
+library (terra) 
+library(tmap)
+
+library(readr)
+Copepods <- read_csv("Data/copepods_raw.csv")
+Copepods
+```
+
+```{r}
+#Check co-ordinates
+
+library(ggplot2)
+ggplot(Copepods) + 
+  aes(x = longitude, y = latitude, color = richness_raw) +
+  geom_point()
+
+ggplot(Copepods, aes(x = latitude, y = richness_raw)) + 
+  stat_smooth() + 
+  geom_point()
+
+```
+
+```{r}
+#Making maps
+
+#First, we will turn our point data into a spatially referenced data frame using the sf package (sf stands for ‘simple features’) which is an open standard for geospatial databases. For those that think in GIS, you can think of this format as a shapfile or feature collection.
+
+sCopepods <- st_as_sf(Copepods, coords = c("longitude", "latitude"), 
+                 crs = 4326)
+##st_as_sf converts different data types to simple features. 
+
+#Co-ordinate reference system
+
+##‘World Geodetic System 1984’ (WGS 84) is a geodetic CRS with EPSG code 4326, and ‘BD72 / Belgian Lambert 72’ is a projected CRS with EPSG code 31370
+
+crs4326 <- st_crs(4326)
+crs4326 # look at the whole CRS
+crs4326$Name # pull out just the name of the crs
+[1] "WGS 84"
+crs4326$wkt
+
+#Feature collection points
+sCopepods
+
+#Cartography
+
+plot(sCopepods["richness_raw"])
+
+
+plot(sCopepods)
+```
+
+```{r}
+#Thematic maps for communication 
+
+#tmap works similarly to ggplot2 in that we build and add on layers. 
+
+tmcope<- tm_shape(sCopepods) + 
+  tm_dots(col = "richness_raw")
+
+##Saves map to working directory
+tmap_save(tmcope, filename = "Richness-map.png", 
+          width = 600, height = 600)
+
+#Mapping spatial polygons as layers
+
+##Loading shape files
+aus <- st_read("data/spatial-data/Aussie/Aussie.shp")
+shelf <- st_read("data/spatial-data/aus_shelf/aus_shelf.shp")
+
+aus
+shelf
+
+#Mapping polygons 
+
+tm_shape(shelf) + 
+  tm_polygons()
+
+##Thematic
+tm_shape(shelf, bbox = sCopepods) + 
+  tm_polygons() +
+  tm_shape(aus) + 
+    tm_dots()+
+   tm_borders("black", lwd = .5)+
+  tm_scale_bar()+
+  tm_compass(
+    type = "arrow")
+
+
+vignette('tmap-getstarted')
+```
+
+```{r}
+#tmap exercises 
+library(tmap)
+data("World")
+
+tm_shape(World) +
+    tm_polygons("HPI")
+
+tmap_mode("view")+
+tm_shape(World) +
+    tm_polygons("HPI")
+
+data(World, metro, rivers, land)
+
+tmap_mode("plot") +
+tm_shape(land) +
+    tm_raster("elevation", palette = terrain.colors(10)) +
+tm_shape(World) +
+    tm_borders("white", lwd = .5) +
+    tm_text("iso_a3", size = "AREA") +
+tm_shape(metro) +
+    tm_symbols(col = "red", size = "pop2020", scale = .5) +
+tm_legend(show = FALSE)
+
+tmap_mode("view")
+tm_shape(World) +
+    tm_polygons(c("HPI", "economy")) +
+    tm_facets(sync = TRUE, ncol = 2)
+```
+
+```{r}
+#Making own map
+
+tmap_mode("plot")
+tm_shape(shelf, bbox = sCopepods) +
+  tm_polygons(col= "aquamarine") +
+tm_shape(aus) +
+  tm_polygons() +
+tm_shape(sCopepods) +
+  tm_dots(col="richness_raw", title = "Copepod richness") +
+tm_layout(bg.color = "skyblue",
+          legend.outside = TRUE, legend.position = c("left", "top")) + 
+  tm_scale_bar()
+
 ```
