@@ -1,0 +1,53 @@
+---
+title: "MB5730 Qfish analysis"
+output: html_notebook
+Author: "Courtney Jonson"
+Date: May 2023
+---
+
+```{r}
+library(tidyverse)
+
+##Step 1: Importing data and tidy data.
+
+#Collect data from Qfish, i chose you
+Shark_data
+Shark_data$Area <- factor(Shark_data$Area)
+
+#Turn a wide format data frame to a long format 
+Shark2<-Shark_data%>% 
+  pivot_longer(c('2013', '2014','2015','2016','2017','2018','2019','2020', '2021','2022','2023'), names_to = "year", values_to = "catches")
+
+Shark2a<- Shark2[Shark2$Area == 'central', ]
+Shark2b<- Shark2[Shark2$Area == 'south', ]
+Shark2c<- Shark2[Shark2$Area == 'north', ]
+
+```
+
+```{r}
+#Plot time series
+
+my_theme <- theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = Shark2, mapping = aes(x = year, y = catches, group = Location, colour = Location)) +
+  geom_line() +
+  geom_point(size = 0.5)+
+    facet_wrap(~ Area, nrow = 3, scale = "fixed") +
+     scale_y_continuous(breaks = seq(0, max(Shark2$catches), by = 50), )+
+  labs(
+    y= "Number of Sharks Caught",
+    x = "Years",
+    title = "Number of Sharks caught over 10 years in Central Queensland"
+  ) +
+    theme_light() +
+  my_theme+
+  theme(panel.spacing = unit(2, "lines"))+
+  scale_color_manual(values = Col1)
+
+#Seperate by area and make look nice
+
+Col1 <- c("#33FFFF", "#00FF00", "#3333FF", "#CC0033", "#FF9966", "#FFCC00","#FF99FF","#FF9999","#CC55FF", "#3399CC", "#000000")
+
+
+```
+
